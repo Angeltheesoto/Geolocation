@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./speechbox.css";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -12,11 +12,39 @@ const SpeechBox = () => {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
+  // !Checks Speech Recognition supported [speech-to-text]
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
   }
 
-  // console.log(transcript);
+  // !Checks Speech Synthesis supported [text-to-speech]
+  if ("speechSynthesis" in window) {
+    console.log("text-to-speech supported :)");
+  } else {
+    alert("Sorry, your browser doesn't support text to speech!");
+  }
+
+  // !Response to your input
+  var msg = new SpeechSynthesisUtterance();
+  var voices = window.speechSynthesis.getVoices();
+
+  msg.text = `${transcript}`;
+  msg.voice = voices[5];
+  msg.volume = 1; // From 0 to 1
+  msg.rate = 1; // From 0.1 to 10
+  msg.pitch = 1; // From 0 to 2
+  msg.lang = "en";
+
+  if (!listening) {
+    window.speechSynthesis.speak(msg);
+  } else {
+    window.speechSynthesis.cancel();
+  }
+
+  // !List of voices
+  // speechSynthesis.getVoices().forEach(function (voice) {
+  //   console.log(voice.name, voice.default ? voice.default : "");
+  // });
 
   return (
     <div className="speechbox-container">
@@ -36,6 +64,17 @@ const SpeechBox = () => {
         >
           {!listening ? "Start" : "Stop"}
         </button>
+        {/* <button
+          onClick={() => {
+            if (!listening) {
+              window.speechSynthesis.speak(msg);
+            } else {
+              window.speechSynthesis.cancel();
+            }
+          }}
+        >
+          response
+        </button> */}
       </div>
     </div>
   );
